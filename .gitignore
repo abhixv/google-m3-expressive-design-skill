@@ -1,3 +1,7 @@
 node_modules/
 .DS_Store
 Thumbs.db
+
+# Reference images are a release download, see README
+skills/m3-expressive/visuals/*
+!skills/m3-expressive/visuals/INDEX.tsv

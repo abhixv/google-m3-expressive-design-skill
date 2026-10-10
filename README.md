@@ -11,8 +11,10 @@ Material UI.
 ![Platforms](https://img.shields.io/badge/Compose%20%7C%20Views%20%7C%20Flutter%20%7C%20Web-informational)
 ![License](https://img.shields.io/badge/license-MIT%20%2B%20notices-green)
 
+![Without the skill a model answers with plausible wrong values; with it, the exact M3 tokens](docs/social-preview.png)
+
 ```bash
-claude plugin marketplace add abhixv/google-m3-expressive-design-skill
+claude plugin marketplace add abhixv/m3-expressive-design-skill
 claude plugin install m3-expressive@m3-expressive
 ```
 
@@ -34,7 +36,8 @@ doesn't publish gets labelled as a design decision instead of quietly passed off
 
 | You ask | Unassisted | With this skill |
 |---|---|---|
-| "Expressive fast spatial spring?" | a confident spring that isn't in any token file | **damping 0.6, stiffness 800** |
+| "Standard scheme default spatial spring?" | damping 0.8, stiffness 380 (those are the *expressive* values) | **damping 0.9, stiffness 700** |
+| "What does elevation level 3 resolve to?" | 12dp | **6dp** |
 | "Radius for a child inside a 48dp card with 16dp padding?" | "48dp, keep it consistent" | **32dp**, since `inner = outer − padding` |
 | "Gap between the two action buttons?" | a number, stated as spec | *"My design decision (not in M3): 12dp"* |
 | "Fade the color with a bouncy spring?" | sure | color and opacity take **effects** springs: damping 1.0, no overshoot |
@@ -43,6 +46,18 @@ doesn't publish gets labelled as a design decision instead of quietly passed off
 The last two matter as much as the first three. Most Material mistakes aren't missing knowledge,
 they're **plausible defaults applied to the wrong component**, and those are what the do/don't rules
 in each reference catch.
+
+**Measured.** 14 questions whose answers are exact values from the references, asked through
+`claude -p` with no tools and no skill, then again with this plugin loaded. Run on 11 October 2026:
+
+| Model | Without the skill | With the skill |
+|---|---|---|
+| Claude Sonnet | 11/14, and 2 of the 3 misses were confidently wrong numbers | **14/14** |
+| Claude Haiku | 10/14, all 4 misses answered "unknown" | **14/14** |
+
+The first two rows of the table above are the two wrong answers Sonnet gave. Strong models already
+know a lot of M3 from memory; the skill's job is the remaining values, and the ones they get wrong
+without noticing.
 
 ## What you get
 
@@ -55,11 +70,12 @@ in each reference catch.
 | `references/motion.md`, `shape.md`, `typography.md`, `color.md`, `color-schemes.md`, `transitions.md` | The style systems in depth: motion schemes, 35 shapes and morphing, baseline vs emphasized type, role pairing, dynamic color, transition patterns |
 | `references/layout.md`, `interaction.md`, `foundations.md`, `platforms.md` | Breakpoints and canonical layouts. States, gestures, accessibility. Elevation, spacing, icons. Per-platform API availability |
 | `references/expressive-tactics.md` | The 7 tactics in depth, the research behind them, what actually shipped |
-| `visuals/` + `references/visuals.md` | **2,587 images**: anatomy diagrams, measurement specs, state grids, do/don't pairs, full-screen canonical layouts, with a greppable caption index |
+| `visuals/INDEX.tsv` + `references/visuals.md` | Greppable caption index for **2,587 images**: anatomy diagrams, measurement specs, state grids, do/don't pairs, full-screen canonical layouts. The images themselves are an optional [download](#reference-images-optional) |
 | `scripts/` | Two refresh scripts, for when Material ships an update |
 
-**Size:** text + scripts = **800 KB**. Images = **495 MB** and entirely optional, since every number
-lives in the markdown. See [slim install](#slim-install-text-only).
+**Size:** the repo is **under 1 MB**, so `plugin install` and `git clone` are quick. The images are
+**495 MB** and entirely optional, since every number lives in the markdown. See
+[reference images](#reference-images-optional).
 
 ## Install
 
@@ -68,7 +84,7 @@ lives in the markdown. See [slim install](#slim-install-text-only).
 **As a plugin.** One command, and `claude plugin marketplace update` keeps it current:
 
 ```bash
-claude plugin marketplace add abhixv/google-m3-expressive-design-skill
+claude plugin marketplace add abhixv/m3-expressive-design-skill
 claude plugin install m3-expressive@m3-expressive
 ```
 
@@ -82,7 +98,7 @@ claude plugin uninstall m3-expressive
 `~/.claude/skills/` that contains a `SKILL.md`:
 
 ```bash
-git clone https://github.com/abhixv/google-m3-expressive-design-skill.git ~/m3-skill
+git clone https://github.com/abhixv/m3-expressive-design-skill.git ~/m3-skill
 ln -s ~/m3-skill/skills/m3-expressive ~/.claude/skills/m3-expressive
 ```
 
@@ -90,7 +106,7 @@ ln -s ~/m3-skill/skills/m3-expressive ~/.claude/skills/m3-expressive
 <summary>Windows PowerShell</summary>
 
 ```powershell
-git clone https://github.com/abhixv/google-m3-expressive-design-skill.git "$env:USERPROFILE\m3-skill"
+git clone https://github.com/abhixv/m3-expressive-design-skill.git "$env:USERPROFILE\m3-skill"
 New-Item -ItemType Directory -Force "$env:USERPROFILE\.claude\skills" | Out-Null
 Copy-Item -Recurse -Force `
   "$env:USERPROFILE\m3-skill\skills\m3-expressive" "$env:USERPROFILE\.claude\skills\"
@@ -132,7 +148,7 @@ Codex reads `AGENTS.md`, either the repo's at the project root or a global one a
 `~/.codex/AGENTS.md`. Clone the skill once, then point Codex at it:
 
 ```bash
-git clone https://github.com/abhixv/google-m3-expressive-design-skill.git ~/m3-skill
+git clone https://github.com/abhixv/m3-expressive-design-skill.git ~/m3-skill
 ```
 
 Append the [pointer block](#the-pointer-block) to `~/.codex/AGENTS.md` (global) or your project's
@@ -228,26 +244,24 @@ rather than presenting it as spec.
 That block is the whole trick. It transplants the source contract into agents that don't
 auto-discover skills, which is why this works the same everywhere.
 
-### Slim install (text-only)
+### Reference images (optional)
 
-The 495 MB of images is the only heavy part. Install without them, and pull them down later if you
-ever want them:
+The repo ships the caption index (`visuals/INDEX.tsv`) but not the 2,587 images, which would make
+every install a 495 MB download. The skill reads the index to tell you which diagram answers your
+question; to actually open the diagrams, add the images in either of two ways:
 
 ```bash
-rsync -a --exclude visuals/ /path/to/m3-skill/skills/m3-expressive/ ~/.claude/skills/m3-expressive/
+# 1. Download the zip from the latest release (495 MB) and unpack it into the skill folder
+cd ~/.claude/skills/m3-expressive
+curl -L -o visuals.zip https://github.com/abhixv/m3-expressive-design-skill/releases/latest/download/m3-expressive-visuals.zip
+unzip -q visuals.zip && rm visuals.zip
 
-# regenerate whenever you want them (~5 min, 2,587 files)
+# 2. Or regenerate them from m3.material.io (~5 min, 2,587 files, needs Node.js)
 cd ~/.claude/skills/m3-expressive && node scripts/refresh-m3.js images visuals
 ```
 
-Cloning this repo gets you the images already, so it works offline with no extra step. If you're
-vendoring the skill into your own repo and want it light, exclude them. They rebuild from
-`INDEX.tsv` plus the refresh script:
-
-```gitignore
-skills/m3-expressive/visuals/*
-!skills/m3-expressive/visuals/INDEX.tsv
-```
+Both put the files under `visuals/`, next to `INDEX.tsv`, where `references/visuals.md` expects
+them. `.gitignore` already excludes them, so vendoring the skill into your own repo stays light.
 
 ## Verify it loaded
 
@@ -321,7 +335,7 @@ which takes about thirty seconds.
 
 No. Every number, rule, and token lives in the markdown. The images are for reading measurement
 diagrams and canonical screens, useful when a spec is ambiguous and optional otherwise. See
-[slim install](#slim-install-text-only).
+[reference images](#reference-images-optional).
 
 ### Is M3 Expressive a new version of Material?
 
@@ -357,8 +371,8 @@ Everything else keeps its own license, and [NOTICE.md](NOTICE.md) records which 
   [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) with attribution
 - **AndroidX token values** (`component-tokens.md`) are Apache License 2.0, © The Android Open Source
   Project; values extracted and reformatted, none altered
-- **Reference images** (`visuals/`) are © Google LLC, included unmodified for reference, and optional.
-  [Exclude them](#slim-install-text-only) if you'd rather not redistribute them.
+- **Reference images** (the release zip) are © Google LLC, unmodified, and optional. They are not in
+  the repo tree; [download them](#reference-images-optional) only if you want them.
 
 Material Design, Material You, Android, and Jetpack Compose are trademarks of Google LLC. **This
 project is not affiliated with, sponsored by, or endorsed by Google.**

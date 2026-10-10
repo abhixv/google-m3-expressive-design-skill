@@ -48,22 +48,18 @@ stamp it came from.
 
 ## Reference images (© Google LLC)
 
-`skills/m3-expressive/visuals/` contains 2,587 images published on <https://m3.material.io>
-(anatomy diagrams, measurement specs, state grids, do/don't pairs, canonical screens). They are
-Google's assets, included here unmodified for reference alongside the guidance they illustrate, and
-they remain Google's copyright.
+The optional release download `m3-expressive-visuals.zip` contains 2,587 images published on
+<https://m3.material.io> (anatomy diagrams, measurement specs, state grids, do/don't pairs, canonical
+screens). They are Google's assets, provided unmodified for reference alongside the guidance they
+illustrate, and they remain Google's copyright. The repository tree carries only the caption index,
+`skills/m3-expressive/visuals/INDEX.tsv`.
 
 They are **not required**, since every number and rule lives in the markdown. If you would rather not
-redistribute them, exclude the directory; it regenerates from `visuals/INDEX.tsv` plus
-`scripts/refresh-m3.js`:
-
-```gitignore
-skills/m3-expressive/visuals/*
-!skills/m3-expressive/visuals/INDEX.tsv
-```
+redistribute them, skip the download; they also regenerate from `visuals/INDEX.tsv` plus
+`scripts/refresh-m3.js`.
 
 If Google or a rights holder objects to their inclusion, open an issue and they will be removed from
-the repository.
+the release.
 
 ## Trademarks
 
